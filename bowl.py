@@ -1,4 +1,5 @@
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, Callable
+from dataclasses import dataclass
 
 """
 Simple bowling:
@@ -9,7 +10,10 @@ Simple bowling:
  4. You can assume you won't be handed anything invalid, i.e. no frames scoring 11, no games with too many frames, etc.
 """
 
-def score(frames: List[Tuple[int,Optional[int]]]) -> int:
+FrameType = Tuple[int,Optional[int]]
+GameType = List[FrameType]
+
+def score(frames: GameType) -> int:
     total = 0
     is_strike = False
     is_spare = False
@@ -24,3 +28,35 @@ def apply_throws(total, first_throw, second_throw, is_strike, is_spare) -> int:
     if second_throw:
         total += second_throw * (2 if is_strike else 1)
     return total
+
+
+"""
+House Rules Bowling:
+ A house rules spec initially contains a count for the total pins and a strike multiplier
+ 1. Implement `house_rules` so that it returns the correct score function for a given total_pins and strike_multiplier
+ 2. Decide on your own house rule and add it to the scoring function
+"""
+@dataclass
+class HouseRulesSpec:
+    darts_goal: int
+
+def house_rules(spec: HouseRulesSpec) -> Callable[[GameType], int]:
+    def score(frames: GameType) -> int:
+        total = 0
+        is_strike = False
+        is_spare = False
+        for (first,second) in frames:
+            total = apply_throws(total, first, second, is_strike, is_spare)
+            is_strike = second is None
+            is_spare = not is_strike and (first + second) == 10
+        return total
+
+    def apply_throws(total, first_throw, second_throw, is_strike, is_spare) -> int:
+        total += first_throw * (2 if is_strike or is_spare else 1)
+        if second_throw:
+            total += second_throw * (2 if is_strike else 1)
+        if total > spec.darts_goal:
+            total = spec.darts_goal if total % spec.darts_goal == 0 else total % spec.darts_goal
+        return total
+    
+    return score
