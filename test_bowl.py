@@ -22,6 +22,7 @@ def test_sum_score(expected,frames):
     (1, [(9,0),(5,0),(1,1)], 15),
     (5, [(10,None),(10,None)], 5),
     (0, [(0, 0)], 15),
+    (1, [(5,4),(4,0),(3,0)], 5),
 ))
 def test_house_rules_darts(expected,frames,darts_goal):
     score = bowl.house_rules(bowl.HouseRulesSpec(darts_goal))
