@@ -1,4 +1,5 @@
 from typing import List, Optional, Tuple, Union, Callable
+from functools import partial
 from dataclasses import dataclass
 
 """
@@ -13,22 +14,21 @@ Simple bowling:
 FrameType = Tuple[int,Optional[int]]
 GameType = List[FrameType]
 
-def score(frames: GameType) -> int:
-    total = 0
-    is_strike = False
-    is_spare = False
-    for (first,second) in frames:
-        total = apply_throws(total, first, second, is_strike, is_spare)
-        is_strike = second is None
-        is_spare = not is_strike and (first + second) == 10
-    return total
-
 def apply_throws(total, first_throw, second_throw, is_strike, is_spare) -> int:
     total += first_throw * (2 if is_strike or is_spare else 1)
     if second_throw:
         total += second_throw * (2 if is_strike else 1)
     return total
 
+def score(frames: GameType, /, *, apply_throws_fn: Callable = apply_throws) -> int:
+    total = 0
+    is_strike = False
+    is_spare = False
+    for (first,second) in frames:
+        total = apply_throws_fn(total, first, second, is_strike, is_spare)
+        is_strike = second is None
+        is_spare = not is_strike and (first + second) == 10
+    return total
 
 """
 House Rules Bowling:
@@ -41,22 +41,10 @@ class HouseRulesSpec:
     darts_goal: int
 
 def house_rules(spec: HouseRulesSpec) -> Callable[[GameType], int]:
-    def score(frames: GameType) -> int:
-        total = 0
-        is_strike = False
-        is_spare = False
-        for (first,second) in frames:
-            total = apply_throws(total, first, second, is_strike, is_spare)
-            is_strike = second is None
-            is_spare = not is_strike and (first + second) == 10
-        return total
-
-    def apply_throws(total, first_throw, second_throw, is_strike, is_spare) -> int:
-        total += first_throw * (2 if is_strike or is_spare else 1)
-        if second_throw:
-            total += second_throw * (2 if is_strike else 1)
+    def apply_darts_throws(*args) -> int:
+        total = apply_throws(*args)
         if total > spec.darts_goal:
             total = spec.darts_goal if total % spec.darts_goal == 0 else total % spec.darts_goal
         return total
     
-    return score
+    return partial(score, apply_throws_fn=apply_darts_throws)
