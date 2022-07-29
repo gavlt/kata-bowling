@@ -1,4 +1,5 @@
-from typing import List, Optional, Tuple, Callable
+from annotated_types import Ge
+from typing import List, Optional, Tuple, Callable, Annotated
 from functools import partial
 from dataclasses import dataclass
 
@@ -11,7 +12,8 @@ Simple bowling:
  4. You can assume you won't be handed anything invalid, i.e. no frames scoring 11, no games with too many frames, etc.
 """
 
-FrameType = Tuple[int, Optional[int]]
+PositiveInt = Annotated[int, Ge(0)]
+FrameType = Tuple[PositiveInt, Optional[PositiveInt]]
 GameType = List[FrameType]
 
 
@@ -27,6 +29,8 @@ def score(frames: GameType, *, apply_throws_fn: Callable = apply_throws) -> int:
     is_strike = False
     is_spare = False
     for (first, second) in frames:
+        if first < 0 or (second is not None and second < 0):
+            raise Exception("Scores cannot be negative!")
         total = apply_throws_fn(total, first, second, is_strike, is_spare)
         is_strike = second is None
         is_spare = not is_strike and (first + second) == 10
