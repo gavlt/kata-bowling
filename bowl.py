@@ -17,6 +17,18 @@ FrameType = Tuple[PositiveInt, Optional[PositiveInt]]
 GameType = List[FrameType]
 
 
+class GameInputError(Exception):
+    pass
+
+
+class FrameInputError(Exception):
+    pass
+
+
+class ThrowInputError(Exception):
+    pass
+
+
 def apply_throws(total, first_throw, second_throw, is_strike, is_spare) -> int:
     total += first_throw * (2 if is_strike or is_spare else 1)
     if second_throw:
@@ -26,15 +38,19 @@ def apply_throws(total, first_throw, second_throw, is_strike, is_spare) -> int:
 
 def score(frames: GameType, *, apply_throws_fn: Callable = apply_throws) -> int:
     if len(frames) > 10:
-        raise ValueError("Cannot have more than 10 frames!")
+        raise GameInputError("Cannot have more than 10 frames!")
     total = 0
     is_strike = False
     is_spare = False
     for (first, second) in frames:
         if first < 0 or (second is not None and second < 0):
-            raise ValueError("Scores cannot be negative!")
+            raise ThrowInputError("Scores cannot be negative!")
         if first + (second or 0) > 10:
-            raise ValueError("A frame cannot score over 10!")
+            raise FrameInputError("A frame cannot score over 10!")
+        if second is None and first != 10:
+            raise FrameInputError("A strike must not have a second score")
+        if first == 10 and second is not None:
+            raise FrameInputError("The second throw of a strike must be None")
         total = apply_throws_fn(total, first, second, is_strike, is_spare)
         is_strike = second is None
         is_spare = not is_strike and (first + second) == 10

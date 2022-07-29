@@ -25,15 +25,17 @@ def test_sum_score(expected, frames):
 
 
 @pytest.mark.parametrize(
-    "frames",
+    "exception,frames",
     (
-        [(-1, 0)],
-        [(11, 0)],
-        [(0, 10) for _ in range(11)],
+        (bowl.ThrowInputError, [(-1, 0)]),
+        (bowl.FrameInputError, [(11, 0)]),
+        (bowl.FrameInputError, [(1, None)]),
+        (bowl.FrameInputError, [(10, 0)]),
+        (bowl.GameInputError, [(0, 10) for _ in range(11)]),
     ),
 )
-def test_score_raises(frames):
-    with pytest.raises(ValueError):
+def test_score_raises(exception, frames):
+    with pytest.raises(exception):
         bowl.score(frames)
 
 

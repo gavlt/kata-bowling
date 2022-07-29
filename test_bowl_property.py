@@ -2,13 +2,16 @@ import bowl
 from hypothesis import example, given, strategies as st
 
 throw = st.integers(min_value=0, max_value=10)
+frame = (
+    st.tuples(throw, st.one_of(st.none(), throw))
+    .filter(lambda f: f[0] + (f[1] or 0) <= 10)
+    .filter(lambda f: f[0] == 10 if f[1] is None else f[0] < 10)
+)
 
 
 @given(
     frames=st.lists(
-        st.tuples(throw, st.one_of(st.none(), throw)).filter(
-            lambda f: f[0] + (f[1] or 0) <= 10
-        ),
+        frame,
         max_size=10,
     )
 )
