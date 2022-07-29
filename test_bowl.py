@@ -14,6 +14,10 @@ import bowl
         (13, [(4, 6), (1, 1)]),
         (19, [(1, 1), (6, 4), (2, 3)]),
         (30, [(10, None), (10, None)]),
+        (100, [(0, 10) for _ in range(10)]),
+        (190, [(10, None) for _ in range(10)]),
+        (190, [(0, 10), (10, None)] * 5),
+        (190, [(10, None), (0, 10)] * 5),
     ),
 )
 def test_sum_score(expected, frames):

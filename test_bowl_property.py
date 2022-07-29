@@ -13,6 +13,10 @@ throw = st.integers(min_value=0, max_value=10)
     )
 )
 @example(frames=[(10, None) for _ in range(10)])
+@example(frames=[(0, 10) for _ in range(10)])
+@example(frames=[(0, 10), (10, None)] * 5)
 def test_fuzz_score(frames):
     result = bowl.score(frames=frames)
+    assert isinstance(result, int)
+    assert result >= 0
     assert result <= 190
