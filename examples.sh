@@ -1,6 +1,12 @@
 # run the tests:
 pytest .
 
+# run with verbosity and stdout
+pytest . -v --capture=no
+
+# unit test with coverage:
+pytest --cov-report=term-missing --cov=bowl --cov-branch
+
 # auto-generate a hypothesis test for bowl.score:
 hypothesis write bowl.score
 

@@ -25,6 +25,19 @@ def test_sum_score(expected, frames):
 
 
 @pytest.mark.parametrize(
+    "frames",
+    (
+        [(-1, 0)],
+        [(11, 0)],
+        [(0, 10) for _ in range(11)],
+    ),
+)
+def test_score_raises(frames):
+    with pytest.raises(ValueError):
+        bowl.score(frames)
+
+
+@pytest.mark.parametrize(
     "expected,frames,darts_goal",
     (
         (5, [(2, 3)], 15),

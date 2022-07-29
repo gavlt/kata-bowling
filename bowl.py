@@ -25,12 +25,16 @@ def apply_throws(total, first_throw, second_throw, is_strike, is_spare) -> int:
 
 
 def score(frames: GameType, *, apply_throws_fn: Callable = apply_throws) -> int:
+    if len(frames) > 10:
+        raise ValueError("Cannot have more than 10 frames!")
     total = 0
     is_strike = False
     is_spare = False
     for (first, second) in frames:
         if first < 0 or (second is not None and second < 0):
-            raise Exception("Scores cannot be negative!")
+            raise ValueError("Scores cannot be negative!")
+        if first + (second or 0) > 10:
+            raise ValueError("A frame cannot score over 10!")
         total = apply_throws_fn(total, first, second, is_strike, is_spare)
         is_strike = second is None
         is_spare = not is_strike and (first + second) == 10
